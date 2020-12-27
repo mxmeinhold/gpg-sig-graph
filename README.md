@@ -5,3 +5,12 @@ If you generate a file `sigs.dot`, you could generate a png like so (the `-Gspli
 ```
 neato -Tpng -Gsplines -Goverlap=scale sigs.dot > out.png
 ```
+
+## Usage
+
+Add this package to your python path, and run 
+```
+python -m gpg-sig-graph -h
+```
+
+You can also use `python setup.py install` and then this tool should be available as `gpg-sig-graph` in your `PATH`

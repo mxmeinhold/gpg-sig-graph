@@ -1,0 +1,4 @@
+# Build / packaging
+build/
+dist/
+*.egg-info/
