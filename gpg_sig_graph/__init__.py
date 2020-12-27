@@ -1,8 +1,18 @@
 import subprocess
+from sys import stdout
 
 from .sigs_list import *
 
-def main():
+def main(out_file=stdout, **kwargs):
+    """
+    Pull keys and signatures from gpg and generate a graphviz graph file
+    
+    Keyword arguments:
+    - out_file: the file to write to. This function will NOT close the file.
+      Defaults to `sys.stdout`. 
+    Superflous keyword arguments are ignored.
+    """
+
     process = subprocess.Popen(['gpg', '-k', '--fixed-list-mode', '--with-colons', '--with-sig-list'], stdout=subprocess.PIPE, universal_newlines=True)
     entries = map(Entry, map(lambda l: l.strip(), process.stdout))
 
@@ -65,13 +75,12 @@ def main():
     for key in data['pubs']:
         fpr_to_uid[key.fpr] = key.uids[0].uid
 
-    with open('sigs.dot', 'w') as sigs_f:
-        sigs_f.write('digraph signatures {\n')
-        sigs_f.write('\tconcentrate=true;\n')
-        sigs_f.write('\tcompound=true;\n')
-        sigs_f.write('\tratio=.25;\n')
-        # TODO key alignment
-        sigs_f.write('''
+    out_file.write('digraph signatures {\n')
+    out_file.write('\tconcentrate=true;\n')
+    out_file.write('\tcompound=true;\n')
+    out_file.write('\tratio=.25;\n')
+    # TODO key alignment
+    out_file.write('''
 \tsubgraph "cluster_key" {
 \t\tlabel="Key";
 \t\trank=min;
@@ -79,20 +88,20 @@ def main():
 \t\t"b1" -> "b2" [dir=none,style=bold,label="Bidirectional Signatures"];
 \t\t"u1" -> "u2" [label="Unidirectional Signature"];
 \t}
-    ''')
-        for fpr in map(lambda k: k.fpr, data['pubs']):
-            try:
-                for sig_fpr in fpr_sigs_map[fpr]:
-                    if sig_fpr == fpr:
-                        sigs_f.write(f'\t"{fpr_to_uid[fpr]} ({fpr})";\n')
-                        continue
+''')
+    for fpr in map(lambda k: k.fpr, data['pubs']):
+        try:
+            for sig_fpr in fpr_sigs_map[fpr]:
+                if sig_fpr == fpr:
+                    out_file.write(f'\t"{fpr_to_uid[fpr]} ({fpr})";\n')
+                    continue
 
-                    if fpr in fpr_sigs_map[sig_fpr]:
-                        # Bidirectional
-                        sigs_f.write(f'\t"{fpr_to_uid[fpr]} ({fpr})" -> "{fpr_to_uid[sig_fpr]} ({sig_fpr})" [dir=none, style=bold];\n')
-                    else:
-                        sigs_f.write(f'\t"{fpr_to_uid[fpr]} ({fpr})" -> "{fpr_to_uid[sig_fpr]} ({sig_fpr})";\n')
-            except:
-                pass
+                if fpr in fpr_sigs_map[sig_fpr]:
+                    # Bidirectional
+                    out_file.write(f'\t"{fpr_to_uid[fpr]} ({fpr})" -> "{fpr_to_uid[sig_fpr]} ({sig_fpr})" [dir=none, style=bold];\n')
+                else:
+                    out_file.write(f'\t"{fpr_to_uid[fpr]} ({fpr})" -> "{fpr_to_uid[sig_fpr]} ({sig_fpr})";\n')
+        except:
+            pass
 
-        sigs_f.write('}')
+    out_file.write('}\n')
