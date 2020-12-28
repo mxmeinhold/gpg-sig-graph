@@ -9,9 +9,9 @@ with open('VERSION', 'r') as version_fh:
 setuptools.setup(
         name='gpg-sig-graph',
         version=version,
-        author="Max Meinhold",
-        author_email="mxmeinhold@gmail.com",
-        description="A tool for graphing signatures between gpg keys",
+        author='Max Meinhold',
+        author_email='mxmeinhold@gmail.com',
+        description='A tool for graphing signatures between gpg keys',
         long_description=long_description,
         long_description_content_type='text/markdown',
         url='https://github.com/mxmeinhold/gpg-sig-graph',

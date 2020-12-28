@@ -1,18 +1,38 @@
+"""
+Classes for parsing and handling gpg's output
+"""
+
+# This class is gonna have a lot of instance attrs until refactored into
+# separate subclasses
+# pylint: disable=too-many-instance-attributes
 class Entry:
-    # See https://github.com/CSNW/gnupg/blob/master/doc/DETAILS
+    """
+    An exploded line from `gpg -k --with-colons` output split into human
+    readable field names
+
+    See https://github.com/CSNW/gnupg/blob/master/doc/DETAILS for field details
+    """
+
     def __init__(self, line):
         if line.startswith('tru'): # Trust base record
-            self.e_type, self.staleness_reason, self.trust_model, self.create_date, self.expiration_date, self.marginals_needed, self.completes_needed, self.max_cert_depth = line.split(':')
+            self.e_type, self.staleness_reason, self.trust_model, \
+            self.create_date, self.expiration_date, self.marginals_needed, \
+            self.completes_needed, self.max_cert_depth = line.split(':')
         elif  line.startswith('spk'): # sig subpacket
             self.e_type, self.spk_number, self.flags, self.length, self.data = line.split(':')
         elif  line.startswith('cfg'): # config data
             self.e_type, self.cfg_field = line.split(':')[:2]
-            data = line.split(':')[2:]
+            self.data = line.split(':')[2:]
         elif line.startswith('fpr'): # fingerprint
             self.e_type, _,_,_,_,_,_,_,_,self.fingerprint = line.split(':')[:10]
         else:
             #print(line, len(line.split(':')))
-            self.e_type, self.validity, self.key_len, self.algorithm, self.keyid, self.create_date, self.expiration_date, self.crt_serial_num, self.ownertrust, self.user_id, self.sig_class, self.capabilities, self.issuer_fpr_or_uid_pref, self.flag, self.token_sn, self.hash_algo, self.curve_name = line.split(':')[:17]
+            self.e_type, self.validity, self.key_len, self.algorithm, \
+            self.keyid, self.create_date, self.expiration_date, \
+            self.crt_serial_num, self.ownertrust, self.user_id, \
+            self.sig_class, self.capabilities, self.issuer_fpr_or_uid_pref, \
+            self.flag, self.token_sn, self.hash_algo, self.curve_name \
+            = line.split(':')[:17]
             #self.all_field = line.split(':')
 
             #self.key_len = int(self.key_len)
@@ -23,10 +43,13 @@ class Entry:
 
 
 class PubKey:
+    """A public key, with associated subkeys and uids"""
+
     pub: Entry
     fpr: str
     subs: list
     uids: list
+
     def __init__(self, entry):
         self.entry = entry
         self.subs = list()
@@ -37,6 +60,8 @@ class PubKey:
 
 
 class Uid:
+    """A uid and associated signatures"""
+
     def __init__(self, entry):
         self.entry = entry
         self.sigs = list()
@@ -47,15 +72,21 @@ class Uid:
 
 
 class SubKey:
+    """A subkey and associated signatures"""
+
     fpr: str
+
     def __init__(self, entry):
         self.entry = entry
         self.sigs = list()
+
     def __repr__(self):
         return f'SubKey(fpr={self.fpr}, sigs={self.sigs})'
 
 
 class Sig:
+    """A gpg signature"""
+
     def __init__(self, entry):
         self.entry = entry
         self.uid = entry.user_id

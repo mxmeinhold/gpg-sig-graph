@@ -1,3 +1,5 @@
+"""Commandline interface for gpg-sig-graph"""
+
 import argparse
 
 from . import main
