@@ -1,0 +1,12 @@
+[MASTER]
+persistent = yes
+load-plugins = pylint_quotes
+
+[FORMAT]
+output-format = colorized
+
+[MESSAGES CONTROL]
+disable = too-few-public-methods
+
+[DESIGN]
+ignored-argument-names = kwargs

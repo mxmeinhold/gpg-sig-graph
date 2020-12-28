@@ -14,3 +14,17 @@ python -m gpg-sig-graph -h
 ```
 
 You can also use `python setup.py install` and then this tool should be available as `gpg-sig-graph` in your `PATH`
+
+## Development
+
+This project uses pylint and pylint-quotes for linting.
+Please lint your changes before submitting patches.
+
+I recommend using a [venv](https://packaging.python.org/tutorials/installing-packages/#creating-virtual-environments), then you can install dev dependencies with
+```
+pip install -r requirements-dev.txt
+```
+and run linting with
+```
+pylint gpg-sig-graph
+```
