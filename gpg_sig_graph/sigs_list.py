@@ -58,6 +58,13 @@ class PubKey:
     def __repr__(self):
         return f'PubKey(fpr=\'{self.fpr}\', subs={self.subs}, uids={self.uids})'
 
+    def __hash__(self):
+        return hash(self.fpr)
+
+    def __eq__(self, other):
+        if isinstance(other, PubKey):
+            return self.fpr == other.fpr
+        return False
 
 class Uid:
     """A uid and associated signatures"""
@@ -94,6 +101,14 @@ class Sig:
 
     def __repr__(self):
         return f'Sig(uid=\'{self.uid}\', issuer_fpr=\'{self.issuer_fpr}\')'
+
+    def __eq__(self, other):
+        if isinstance(other, Sig):
+            return self.uid == other.uid and self.issuer_fpr == other.issuer_fpr
+        return False
+
+    def __hash__(self):
+        return hash((self.uid, self.issuer_fpr))
 
 # TODO revocations, trust level
 
