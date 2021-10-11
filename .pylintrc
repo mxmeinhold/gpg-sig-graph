@@ -1,12 +1,12 @@
 [MASTER]
 persistent = yes
-load-plugins = pylint_quotes
+load-plugins = pylint_quotes, pylint_fixme_info
 
 [FORMAT]
 output-format = colorized
 
 [MESSAGES CONTROL]
-disable = too-few-public-methods
+disable = too-few-public-methods, fixme
 
 [DESIGN]
 ignored-argument-names = kwargs
